@@ -8,13 +8,13 @@
 <style>
 body{
     margin:0;
-    background:#000000;
+    background:#000;
     color:#ff2a2a;
     font-family:'Share Tech Mono',monospace;
     overflow:hidden;
 }
 
-/* MATRIX CANVAS */
+/* MATRIX */
 #matrix{
     position:fixed;
     top:0;
@@ -22,7 +22,7 @@ body{
     z-index:0;
 }
 
-/* Flash Effects */
+/* FLASH */
 body.flash::after{
     content:"";
     position:fixed;
@@ -43,29 +43,16 @@ body.flash::after{
     50%{opacity:1}
     100%{opacity:.97}
 }
+body.flash{ animation:flicker .15s infinite; }
 
-body.flash{
-    animation:flicker .15s infinite;
-}
-
-/* Boot */
-#boot{
-    position:absolute;
-    width:100%;
-    height:100%;
-    padding:20px;
-    white-space:pre-line;
-    z-index:2;
-}
-
-/* Desktop */
-#desktop{
-    display:none;
-    width:100%;
-    height:100%;
+/* UI Layers */
+#boot,#desktop,#controls{
     position:absolute;
     z-index:2;
 }
+
+#boot{ width:100%; height:100%; padding:20px; white-space:pre-line; }
+#desktop{ display:none; width:100%; height:100%; }
 
 /* Window */
 .window{
@@ -78,41 +65,39 @@ body.flash{
     border:2px solid red;
     box-shadow:0 0 20px red;
 }
-
 .titlebar{
     background:#300000;
     padding:6px;
     cursor:move;
     border-bottom:1px solid red;
 }
-
 iframe{
     width:100%;
     height:calc(100% - 35px);
     border:none;
 }
 
-/* Controls */
+/* Control Panel */
 #controls{
-    position:fixed;
     top:10px;
     left:10px;
     z-index:3;
 }
-
-button{
+.panel{
+    background:#111;
+    border:1px solid yellow;
+    padding:10px;
+    margin-top:5px;
+    width:260px;
+}
+button,select,input{
     background:black;
     color:yellow;
     border:1px solid yellow;
-    padding:6px 10px;
-    cursor:pointer;
     font-family:inherit;
+    margin-top:4px;
 }
-
-button:hover{
-    background:yellow;
-    color:black;
-}
+label{ display:block; margin-top:6px; font-size:13px; }
 </style>
 </head>
 
@@ -121,7 +106,39 @@ button:hover{
 <canvas id="matrix"></canvas>
 
 <div id="controls">
-    <button onclick="toggleFlash()">Disable Flash Effects</button>
+    <button onclick="togglePanel()">Settings</button>
+    <div id="settingsPanel" class="panel" style="display:none;">
+
+        <label>Matrix Speed
+            <input type="range" min="20" max="150" value="50" id="speedSlider">
+        </label>
+
+        <label>Symbol Size
+            <input type="range" min="12" max="40" value="22" id="sizeSlider">
+        </label>
+
+        <label>Glow Intensity
+            <input type="range" min="0" max="20" value="8" id="glowSlider">
+        </label>
+
+        <label>Rain Density
+            <input type="range" min="0.5" max="2" step="0.1" value="1" id="densitySlider">
+        </label>
+
+        <label>Matrix Color
+            <select id="colorSelect">
+                <option value="#FFD700">Yellow</option>
+                <option value="#FF0000">Red</option>
+                <option value="#00FF00">Green</option>
+                <option value="#FFFFFF">White</option>
+            </select>
+        </label>
+
+        <button onclick="toggleMatrix()">Toggle Matrix</button>
+        <button onclick="toggleFlash()">Toggle Flash</button>
+        <button onclick="resetSettings()">Reset Defaults</button>
+
+    </div>
 </div>
 
 <div id="boot"></div>
@@ -135,92 +152,106 @@ button:hover{
 
 <script>
 
-/* =======================================================
-   🔴 PASTE YOUR LINK BELOW
-   ======================================================= */
-
+/* ================= EDIT THIS ================= */
 const CLIENT_LINK = "https://eaglercraft1-8.github.io/";
+/* ============================================= */
 
-/* ======================================================= */
+/* SETTINGS */
+let settings = JSON.parse(localStorage.getItem("bunkerSettings")) || {
+    speed:50,
+    size:22,
+    glow:8,
+    density:1,
+    color:"#FFD700",
+    matrix:true,
+    flash:true
+};
 
-
-/* Accessibility */
-if(localStorage.getItem("flashDisabled") === "true"){
-    document.body.classList.remove("flash");
+function saveSettings(){
+    localStorage.setItem("bunkerSettings", JSON.stringify(settings));
 }
 
+/* Apply settings to UI */
+document.getElementById("speedSlider").value=settings.speed;
+document.getElementById("sizeSlider").value=settings.size;
+document.getElementById("glowSlider").value=settings.glow;
+document.getElementById("densitySlider").value=settings.density;
+document.getElementById("colorSelect").value=settings.color;
+
+if(!settings.flash) document.body.classList.remove("flash");
+
+/* Controls */
+function togglePanel(){
+    const p=document.getElementById("settingsPanel");
+    p.style.display = p.style.display==="none" ? "block" : "none";
+}
 function toggleFlash(){
+    settings.flash=!settings.flash;
     document.body.classList.toggle("flash");
-    const disabled = !document.body.classList.contains("flash");
-    localStorage.setItem("flashDisabled", disabled);
+    saveSettings();
+}
+function toggleMatrix(){
+    settings.matrix=!settings.matrix;
+    saveSettings();
+}
+function resetSettings(){
+    localStorage.removeItem("bunkerSettings");
+    location.reload();
 }
 
-/* MATRIX HAMMER & SICKLE RAIN */
+/* Sliders */
+speedSlider.oninput=e=>{settings.speed=e.target.value; saveSettings();}
+sizeSlider.oninput=e=>{settings.size=e.target.value; saveSettings(); resetColumns();}
+glowSlider.oninput=e=>{settings.glow=e.target.value; saveSettings();}
+densitySlider.oninput=e=>{settings.density=e.target.value; saveSettings(); resetColumns();}
+colorSelect.onchange=e=>{settings.color=e.target.value; saveSettings();}
 
-const canvas = document.getElementById("matrix");
-const ctx = canvas.getContext("2d");
+/* MATRIX */
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
 
 function resizeCanvas(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-const symbols = ["☭","☭","☭","☭","☭"];
-const fontSize = 22;
-let columns = Math.floor(window.innerWidth / fontSize);
-let drops = new Array(columns).fill(1);
+let columns,drops;
 
 function resetColumns(){
-    columns = Math.floor(window.innerWidth / fontSize);
-    drops = new Array(columns).fill(1);
+    columns=Math.floor((window.innerWidth/settings.size)*settings.density);
+    drops=new Array(columns).fill(1);
 }
-window.addEventListener("resize", resetColumns);
+resetColumns();
 
 function drawMatrix(){
+    if(!settings.matrix){ ctx.clearRect(0,0,canvas.width,canvas.height); return; }
 
-    if(localStorage.getItem("flashDisabled") === "true") {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        return;
-    }
-
-    ctx.fillStyle = "rgba(0,0,0,0.15)";
+    ctx.fillStyle="rgba(0,0,0,0.15)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = "#FFD700";
-    ctx.font = fontSize + "px monospace";
-    ctx.shadowColor = "#FFD700";
-    ctx.shadowBlur = 8;
+    ctx.fillStyle=settings.color;
+    ctx.font=settings.size+"px monospace";
+    ctx.shadowColor=settings.color;
+    ctx.shadowBlur=settings.glow;
 
-    for(let i = 0; i < drops.length; i++){
-        const text = symbols[Math.floor(Math.random()*symbols.length)];
-        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
-
-        if(drops[i]*fontSize > canvas.height && Math.random() > 0.975){
-            drops[i] = 0;
-        }
-
+    for(let i=0;i<drops.length;i++){
+        ctx.fillText("☭", i*settings.size, drops[i]*settings.size);
+        if(drops[i]*settings.size>canvas.height && Math.random()>0.975)
+            drops[i]=0;
         drops[i]++;
     }
 }
+setInterval(drawMatrix, settings.speed);
 
-setInterval(drawMatrix, 50);
-
-
-/* Boot Text */
-
-const bootText = `
-RED BUNKER OS v10.0
+/* Boot */
+const bootText=`
+RED BUNKER OS v11.0
 STATE PROPERTY
------------------------
-INITIALIZING GRAPHICS...
-CHECKING SECURITY LEVEL...
-CONNECTING TO CENTRAL NODE...
+INITIALIZING...
 ACCESS GRANTED.
-WELCOME, COMRADE.
 `;
-
 let i=0;
 function typeBoot(){
     if(i<bootText.length){
@@ -229,45 +260,29 @@ function typeBoot(){
         setTimeout(typeBoot,20);
     }else{
         setTimeout(()=>{
-            document.getElementById("boot").style.display="none";
-            document.getElementById("desktop").style.display="block";
-            document.getElementById("clientFrame").src = CLIENT_LINK;
-        },1000);
+            boot.style.display="none";
+            desktop.style.display="block";
+            clientFrame.src=CLIENT_LINK;
+        },800);
     }
 }
 typeBoot();
 
-
-/* Drag Window */
-
+/* Drag */
 dragElement(document.getElementById("mainWindow"));
-
 function dragElement(el){
     let pos1=0,pos2=0,pos3=0,pos4=0;
-    el.querySelector(".titlebar").onmousedown=dragMouseDown;
-
-    function dragMouseDown(e){
-        e.preventDefault();
-        pos3=e.clientX;
-        pos4=e.clientY;
-        document.onmouseup=closeDrag;
-        document.onmousemove=elementDrag;
-    }
-
-    function elementDrag(e){
-        e.preventDefault();
-        pos1=pos3-e.clientX;
-        pos2=pos4-e.clientY;
-        pos3=e.clientX;
-        pos4=e.clientY;
-        el.style.top=(el.offsetTop-pos2)+"px";
-        el.style.left=(el.offsetLeft-pos1)+"px";
-    }
-
-    function closeDrag(){
-        document.onmouseup=null;
-        document.onmousemove=null;
-    }
+    el.querySelector(".titlebar").onmousedown=e=>{
+        pos3=e.clientX; pos4=e.clientY;
+        document.onmousemove=e=>{
+            pos1=pos3-e.clientX;
+            pos2=pos4-e.clientY;
+            pos3=e.clientX; pos4=e.clientY;
+            el.style.top=(el.offsetTop-pos2)+"px";
+            el.style.left=(el.offsetLeft-pos1)+"px";
+        };
+        document.onmouseup=()=>{document.onmousemove=null;}
+    };
 }
 </script>
 
