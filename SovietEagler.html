@@ -14,7 +14,15 @@ body{
     overflow:hidden;
 }
 
-/* FLASH EFFECTS (can be disabled) */
+/* MATRIX CANVAS */
+#matrix{
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:-1;
+}
+
+/* FLASH EFFECTS */
 body.flash::after{
     content:"";
     position:fixed;
@@ -91,21 +99,23 @@ iframe{
 
 button{
     background:black;
-    color:red;
-    border:1px solid red;
+    color:yellow;
+    border:1px solid yellow;
     padding:6px 10px;
     cursor:pointer;
     font-family:inherit;
 }
 
 button:hover{
-    background:red;
+    background:yellow;
     color:black;
 }
 </style>
 </head>
 
 <body class="flash">
+
+<canvas id="matrix"></canvas>
 
 <div id="controls">
     <button onclick="toggleFlash()">Disable Flash Effects</button>
@@ -131,21 +141,63 @@ const CLIENT_LINK = "https://eaglercraft1-8.github.io/";
 /* ======================================================= */
 
 
-/* Accessibility Setting */
+/* Accessibility */
 if(localStorage.getItem("flashDisabled") === "true"){
     document.body.classList.remove("flash");
 }
 
-/* Toggle Flash */
 function toggleFlash(){
     document.body.classList.toggle("flash");
     const disabled = !document.body.classList.contains("flash");
     localStorage.setItem("flashDisabled", disabled);
 }
 
+/* MATRIX HAMMER & SICKLE RAIN */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const symbols = ["☭","☭","☭","☭","☭","☭"];
+const fontSize = 20;
+const columns = canvas.width / fontSize;
+
+const drops = [];
+for(let x=0; x<columns; x++){
+    drops[x] = 1;
+}
+
+function drawMatrix(){
+    if(localStorage.getItem("flashDisabled") === "true") return;
+
+    ctx.fillStyle = "rgba(5,0,0,0.1)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = "yellow";
+    ctx.font = fontSize + "px monospace";
+
+    for(let i=0; i<drops.length; i++){
+        const text = symbols[Math.floor(Math.random()*symbols.length)];
+        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+
+        if(drops[i]*fontSize > canvas.height && Math.random() > 0.975)
+            drops[i] = 0;
+
+        drops[i]++;
+    }
+}
+
+setInterval(drawMatrix, 50);
+
+window.onresize = function(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+};
+
 /* Boot Text */
 const bootText = `
-RED BUNKER OS v9.0
+RED BUNKER OS v10.0
 STATE PROPERTY
 -----------------------
 INITIALIZING GRAPHICS...
