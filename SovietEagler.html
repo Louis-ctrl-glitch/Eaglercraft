@@ -8,7 +8,7 @@
 <style>
 body{
     margin:0;
-    background:#050000;
+    background:#000000;
     color:#ff2a2a;
     font-family:'Share Tech Mono',monospace;
     overflow:hidden;
@@ -19,10 +19,10 @@ body{
     position:fixed;
     top:0;
     left:0;
-    z-index:-1;
+    z-index:0;
 }
 
-/* FLASH EFFECTS */
+/* Flash Effects */
 body.flash::after{
     content:"";
     position:fixed;
@@ -55,6 +55,7 @@ body.flash{
     height:100%;
     padding:20px;
     white-space:pre-line;
+    z-index:2;
 }
 
 /* Desktop */
@@ -63,6 +64,7 @@ body.flash{
     width:100%;
     height:100%;
     position:absolute;
+    z-index:2;
 }
 
 /* Window */
@@ -90,11 +92,12 @@ iframe{
     border:none;
 }
 
+/* Controls */
 #controls{
     position:fixed;
     top:10px;
     left:10px;
-    z-index:1000;
+    z-index:3;
 }
 
 button{
@@ -153,36 +156,50 @@ function toggleFlash(){
 }
 
 /* MATRIX HAMMER & SICKLE RAIN */
+
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-const symbols = ["☭","☭","☭","☭","☭","☭"];
-const fontSize = 20;
-const columns = canvas.width / fontSize;
-
-const drops = [];
-for(let x=0; x<columns; x++){
-    drops[x] = 1;
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+const symbols = ["☭","☭","☭","☭","☭"];
+const fontSize = 22;
+let columns = Math.floor(window.innerWidth / fontSize);
+let drops = new Array(columns).fill(1);
+
+function resetColumns(){
+    columns = Math.floor(window.innerWidth / fontSize);
+    drops = new Array(columns).fill(1);
+}
+window.addEventListener("resize", resetColumns);
 
 function drawMatrix(){
-    if(localStorage.getItem("flashDisabled") === "true") return;
 
-    ctx.fillStyle = "rgba(5,0,0,0.1)";
+    if(localStorage.getItem("flashDisabled") === "true") {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        return;
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.15)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = "yellow";
+    ctx.fillStyle = "#FFD700";
     ctx.font = fontSize + "px monospace";
+    ctx.shadowColor = "#FFD700";
+    ctx.shadowBlur = 8;
 
-    for(let i=0; i<drops.length; i++){
+    for(let i = 0; i < drops.length; i++){
         const text = symbols[Math.floor(Math.random()*symbols.length)];
         ctx.fillText(text, i*fontSize, drops[i]*fontSize);
 
-        if(drops[i]*fontSize > canvas.height && Math.random() > 0.975)
+        if(drops[i]*fontSize > canvas.height && Math.random() > 0.975){
             drops[i] = 0;
+        }
 
         drops[i]++;
     }
@@ -190,12 +207,9 @@ function drawMatrix(){
 
 setInterval(drawMatrix, 50);
 
-window.onresize = function(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-};
 
 /* Boot Text */
+
 const bootText = `
 RED BUNKER OS v10.0
 STATE PROPERTY
@@ -223,7 +237,9 @@ function typeBoot(){
 }
 typeBoot();
 
+
 /* Drag Window */
+
 dragElement(document.getElementById("mainWindow"));
 
 function dragElement(el){
