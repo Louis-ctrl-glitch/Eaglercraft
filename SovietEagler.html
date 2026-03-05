@@ -2,123 +2,192 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>RED BUNKER CLIENT</title>
+<title>RED BUNKER OS v12</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
 body{
-margin:0;
-background:black;
-color:#ff2a2a;
-font-family:'Share Tech Mono',monospace;
-overflow:hidden;
+    margin:0;
+    background:#000;
+    color:#ff2a2a;
+    font-family:'Share Tech Mono',monospace;
+    overflow:hidden;
 }
 
-/* Soviet flag background */
+/* 76% Transparent Flag */
 #flag{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-font-size:40vw;
-opacity:0.76;
-color:red;
-z-index:-2;
-pointer-events:none;
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:40vw;
+    color:red;
+    opacity:0.76;
+    z-index:-2;
+    pointer-events:none;
 }
 
-/* Matrix canvas */
+/* Matrix */
 #matrix{
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:-1;
 }
 
-/* Boot screen */
-#boot{
-position:absolute;
-padding:20px;
-white-space:pre-line;
+/* Smoke */
+#smoke{
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:0;
+    pointer-events:none;
 }
 
-/* Desktop */
-#desktop{
-display:none;
-width:100%;
-height:100%;
+body.flash::after{
+    content:"";
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:repeating-linear-gradient(
+        0deg,
+        rgba(255,0,0,0.08) 0px,
+        rgba(255,0,0,0.08) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    pointer-events:none;
 }
 
-/* Window */
+@keyframes flicker{
+    0%{opacity:.95}
+    50%{opacity:1}
+    100%{opacity:.97}
+}
+body.flash{ animation:flicker .15s infinite; }
+
+#boot,#desktop,#controls{
+    position:absolute;
+    z-index:2;
+}
+
+#boot{ width:100%; height:100%; padding:20px; white-space:pre-line; }
+#desktop{ display:none; width:100%; height:100%; }
+
 .window{
-position:absolute;
-top:10%;
-left:10%;
-width:80%;
-height:80%;
-background:#100000;
-border:2px solid red;
-box-shadow:0 0 20px red;
+    position:absolute;
+    width:80%;
+    height:80%;
+    top:10%;
+    left:10%;
+    background:#100000;
+    border:2px solid red;
+    box-shadow:0 0 20px red;
 }
 
 .titlebar{
-background:#300000;
-padding:6px;
-cursor:move;
-border-bottom:1px solid red;
+    background:#300000;
+    padding:6px;
+    cursor:move;
+    border-bottom:1px solid red;
 }
 
 iframe{
-width:100%;
-height:calc(100% - 35px);
-border:none;
+    width:100%;
+    height:calc(100% - 35px);
+    border:none;
 }
 
-/* Control panel */
 #controls{
-position:absolute;
-top:10px;
-left:10px;
-z-index:5;
+    top:10px;
+    left:10px;
+    z-index:3;
 }
 
-button{
-background:black;
-color:yellow;
-border:1px solid yellow;
-font-family:inherit;
-margin:2px;
+.panel{
+    background:#111;
+    border:1px solid yellow;
+    padding:10px;
+    margin-top:5px;
+    width:280px;
+    max-height:80vh;
+    overflow:auto;
 }
 
-/* FPS counter */
+button,select,input{
+    background:black;
+    color:yellow;
+    border:1px solid yellow;
+    font-family:inherit;
+    margin-top:4px;
+}
+
+label{ display:block; margin-top:6px; font-size:13px; }
+
 #fps{
-position:fixed;
-top:5px;
-right:10px;
-color:lime;
-font-size:14px;
-z-index:10;
+    position:fixed;
+    bottom:5px;
+    right:10px;
+    color:lime;
+    font-size:14px;
+    z-index:5;
 }
-
 </style>
 </head>
 
-<body>
+<body class="flash">
 
 <div id="flag">☭</div>
 <canvas id="matrix"></canvas>
+<canvas id="smoke"></canvas>
 
 <div id="controls">
-<button onclick="toggleMatrix()">Matrix</button>
-<button onclick="toggleFlash()">Flash</button>
-<button onclick="togglePerformance()">Performance</button>
+<button onclick="togglePanel()">Settings</button>
+<div id="settingsPanel" class="panel" style="display:none;">
+
+<label>Theme
+<select id="themeSelect">
+<option value="bunker">Bunker</option>
+<option value="hacker">Hacker</option>
+<option value="nuclear">Nuclear</option>
+<option value="minimal">Minimal</option>
+</select>
+</label>
+
+<label>Matrix Speed
+<input type="range" min="20" max="150" value="50" id="speedSlider">
+</label>
+
+<label>Symbol Size
+<input type="range" min="12" max="40" value="22" id="sizeSlider">
+</label>
+
+<label>Glow
+<input type="range" min="0" max="20" value="8" id="glowSlider">
+</label>
+
+<label>Warp Distortion
+<input type="range" min="0" max="20" value="0" id="warpSlider">
+</label>
+
+<label>Boot Speed
+<input type="range" min="5" max="60" value="20" id="bootSlider">
+</label>
+
+<button onclick="toggleSmoke()">Toggle Smoke</button>
+<button onclick="toggleMatrix()">Toggle Matrix</button>
+<button onclick="toggleFlash()">Toggle Flash</button>
+<button onclick="togglePerformance()">Performance Mode</button>
+<button onclick="resetSettings()">Reset</button>
+
+</div>
 </div>
 
 <div id="boot"></div>
 
 <div id="desktop">
 <div class="window" id="mainWindow">
-<div class="titlebar">☭ SOVIET CLIENT TERMINAL ☭</div>
+<div class="titlebar">☭ MILITARY CLIENT NODE ☭</div>
 <iframe id="clientFrame"></iframe>
 </div>
 </div>
@@ -127,145 +196,159 @@ z-index:10;
 
 <script>
 
-/* EDIT THIS */
-const CLIENT_LINK="lercraft1-8.github.io";
+/* EDIT THIS IF YOU WANT A DIFFEERENT LINK */
+const CLIENT_LINK = "https://eaglercraft1-8.github.io/";
 
-/* Settings */
-let matrixOn=true;
-let flashOn=true;
-let performance=false;
+/* SETTINGS */
+let settings = JSON.parse(localStorage.getItem("bunkerSettings")) || {
+speed:50,size:22,glow:8,warp:0,boot:20,
+matrix:true,flash:true,smoke:true,performance:false,
+theme:"bunker"
+};
 
-/* Boot screen */
-const bootText=
-`RED BUNKER OS
-STATE NETWORK NODE
-AUTHORIZATION: GRANTED
-WELCOME COMRADE
-LOADING CLIENT...`;
+function save(){localStorage.setItem("bunkerSettings",JSON.stringify(settings));}
 
-let i=0;
-function boot(){
-if(i<bootText.length){
-bootDiv.innerHTML+=bootText[i++];
-setTimeout(boot,20);
-}else{
-setTimeout(()=>{
-bootDiv.style.display="none";
-desktop.style.display="block";
-clientFrame.src=CLIENT_LINK;
-},700);
+/* Theme Presets */
+function applyTheme(){
+switch(settings.theme){
+case "hacker": settings.color="#00FF00"; break;
+case "nuclear": settings.color="#FFAA00"; break;
+case "minimal": settings.color="#FFFFFF"; break;
+default: settings.color="#FFD700";
 }
 }
-const bootDiv=document.getElementById("boot");
-boot();
+applyTheme();
 
-/* MATRIX EFFECT */
+/* UI Bindings */
+themeSelect.value=settings.theme;
+speedSlider.value=settings.speed;
+sizeSlider.value=settings.size;
+glowSlider.value=settings.glow;
+warpSlider.value=settings.warp;
+bootSlider.value=settings.boot;
 
-const canvas=document.getElementById("matrix");
-const ctx=canvas.getContext("2d");
+themeSelect.onchange=e=>{settings.theme=e.target.value;applyTheme();save();}
+speedSlider.oninput=e=>{settings.speed=e.target.value;save();}
+sizeSlider.oninput=e=>{settings.size=e.target.value;resetMatrix();save();}
+glowSlider.oninput=e=>{settings.glow=e.target.value;save();}
+warpSlider.oninput=e=>{settings.warp=e.target.value;document.body.style.filter=`blur(${settings.warp/10}px)`;save();}
+bootSlider.oninput=e=>{settings.boot=e.target.value;save();}
 
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+function togglePanel(){settingsPanel.style.display=settingsPanel.style.display==="none"?"block":"none";}
+function toggleMatrix(){settings.matrix=!settings.matrix;save();}
+function toggleFlash(){settings.flash=!settings.flash;document.body.classList.toggle("flash");save();}
+function toggleSmoke(){settings.smoke=!settings.smoke;save();}
+function togglePerformance(){settings.performance=!settings.performance;save();}
+function resetSettings(){localStorage.removeItem("bunkerSettings");location.reload();}
 
-let fontSize=20;
-let columns=canvas.width/fontSize;
-let drops=[];
+/* MATRIX */
+const matrix=document.getElementById("matrix");
+const mctx=matrix.getContext("2d");
 
-for(let i=0;i<columns;i++)drops[i]=1;
+function resize(){
+matrix.width=window.innerWidth;
+matrix.height=window.innerHeight;
+}
+resize();
+window.onresize=resize;
+
+let drops,cols;
+function resetMatrix(){
+cols=Math.floor(matrix.width/settings.size);
+drops=new Array(cols).fill(1);
+}
+resetMatrix();
 
 function drawMatrix(){
+if(!settings.matrix) return;
 
-if(!matrixOn) return;
-
-ctx.fillStyle="rgba(0,0,0,0.15)";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-ctx.fillStyle="#FFD700";
-ctx.font=fontSize+"px monospace";
+mctx.fillStyle="rgba(0,0,0,0.15)";
+mctx.fillRect(0,0,matrix.width,matrix.height);
+mctx.fillStyle=settings.color;
+mctx.font=settings.size+"px monospace";
+mctx.shadowColor=settings.color;
+mctx.shadowBlur=settings.glow;
 
 for(let i=0;i<drops.length;i++){
-
-ctx.fillText("☭",i*fontSize,drops[i]*fontSize);
-
-if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
-drops[i]=0;
-
+mctx.fillText("☭",i*settings.size,drops[i]*settings.size);
+if(drops[i]*settings.size>matrix.height && Math.random()>0.975)drops[i]=0;
 drops[i]++;
+}
+}
+setInterval(drawMatrix, settings.performance?100:settings.speed);
 
+/* SMOKE */
+const smoke=document.getElementById("smoke");
+const sctx=smoke.getContext("2d");
+smoke.width=window.innerWidth;
+smoke.height=window.innerHeight;
+
+let particles=[];
+for(let i=0;i<50;i++){
+particles.push({x:Math.random()*smoke.width,y:Math.random()*smoke.height,r:Math.random()*50});
 }
 
+function drawSmoke(){
+if(!settings.smoke) return;
+sctx.clearRect(0,0,smoke.width,smoke.height);
+sctx.fillStyle="rgba(255,0,0,0.03)";
+particles.forEach(p=>{
+sctx.beginPath();
+sctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+sctx.fill();
+p.y-=0.3;
+if(p.y<0)p.y=smoke.height;
+});
+requestAnimationFrame(drawSmoke);
 }
-
-setInterval(drawMatrix,performance?120:50);
-
-/* Controls */
-
-function toggleMatrix(){
-matrixOn=!matrixOn;
-}
-
-function toggleFlash(){
-flashOn=!flashOn;
-document.body.style.animation=flashOn?"flicker .15s infinite":"none";
-}
-
-function togglePerformance(){
-performance=!performance;
-}
+drawSmoke();
 
 /* FPS Counter */
-
-let last=performance.now();
-let frames=0;
-
+let last=performance.now(),frames=0;
 function fpsCounter(){
 frames++;
 let now=performance.now();
-
 if(now-last>=1000){
 fps.innerText="FPS: "+frames;
 frames=0;
 last=now;
 }
-
 requestAnimationFrame(fpsCounter);
 }
-
 fpsCounter();
 
-/* Drag window */
+/* Boot */
+const bootText="RED BUNKER OS v12\nACCESS GRANTED\nWELCOME COMRADE\n";
+let i=0;
+function bootSeq(){
+if(i<bootText.length){
+boot.innerHTML+=bootText[i++];
+setTimeout(bootSeq,settings.boot);
+}else{
+setTimeout(()=>{
+boot.style.display="none";
+desktop.style.display="block";
+clientFrame.src=CLIENT_LINK;
+},800);
+}
+}
+bootSeq();
 
-dragElement(document.getElementById("mainWindow"));
-
+/* Drag */
+dragElement(mainWindow);
 function dragElement(el){
 let pos1=0,pos2=0,pos3=0,pos4=0;
-
 el.querySelector(".titlebar").onmousedown=e=>{
-pos3=e.clientX;
-pos4=e.clientY;
-
+pos3=e.clientX;pos4=e.clientY;
 document.onmousemove=e=>{
-pos1=pos3-e.clientX;
-pos2=pos4-e.clientY;
-pos3=e.clientX;
-pos4=e.clientY;
-
+pos1=pos3-e.clientX;pos2=pos4-e.clientY;
+pos3=e.clientX;pos4=e.clientY;
 el.style.top=(el.offsetTop-pos2)+"px";
 el.style.left=(el.offsetLeft-pos1)+"px";
 };
-
 document.onmouseup=()=>document.onmousemove=null;
 };
-
 }
-
-/* Resize matrix */
-
-window.addEventListener("resize",()=>{
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-});
-
 </script>
 
 </body>
