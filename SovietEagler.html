@@ -1,400 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Soviet Terminal OS</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
+<title>Iron Client</title>
 <style>
-
-:root{
---red:#8b0000;
---yellow:#ffd700;
-}
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
 
 body{
-margin:0;
-background:black;
-color:var(--yellow);
-font-family:'Share Tech Mono',monospace;
-overflow:hidden;
+    margin:0;
+    font-family:'Russo One', sans-serif;
+    background:linear-gradient(rgba(120,0,0,0.85),rgba(40,0,0,0.95)),
+    url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Flag_of_the_Soviet_Union.svg/1920px-Flag_of_the_Soviet_Union.svg.png");
+    background-size:cover;
+    color:white;
 }
 
-/* BACKGROUND FLAG */
-
-#flag{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-font-size:50vw;
-opacity:0.3235732;
-color:var(--red);
-z-index:-3;
-pointer-events:none;
+header{
+    text-align:center;
+    padding:20px;
+    font-size:40px;
+    letter-spacing:3px;
+    text-shadow:0 0 15px red;
 }
 
-/* MATRIX */
-
-#matrix{
-position:fixed;
-top:0;
-left:0;
-z-index:-2;
+.container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:80vh;
 }
 
-/* RADAR */
-
-#radar{
-position:fixed;
-width:100%;
-height:100%;
-background:
-conic-gradient(rgba(255,0,0,0.25), transparent 70%);
-animation:spin 7s linear infinite;
-pointer-events:none;
-z-index:-1;
-}
-
-@keyframes spin{
-0%{transform:rotate(0deg);}
-100%{transform:rotate(360deg);}
-}
-
-/* BOOT */
-
-#boot{
-position:absolute;
-top:40%;
-left:50%;
-transform:translate(-50%,-50%);
-white-space:pre-line;
-font-size:18px;
-text-align:center;
-}
-
-/* SETTINGS */
-
-#settings{
-position:fixed;
-left:0;
-top:0;
-width:220px;
-height:100%;
-background:#150000;
-border-right:2px solid var(--yellow);
-padding:10px;
-display:none;
-overflow:auto;
-}
-
-button{
-width:100%;
-margin:5px 0;
-background:black;
-color:var(--yellow);
-border:1px solid var(--yellow);
-padding:5px;
-cursor:pointer;
-}
-
-/* TOPBAR */
-
-#topbar{
-position:fixed;
-left:220px;
-right:0;
-top:0;
-height:45px;
-background:#300000;
-border-bottom:2px solid var(--yellow);
-display:flex;
-align-items:center;
-padding-left:10px;
-z-index:5;
-}
-
-#fps{
-margin-left:auto;
-margin-right:15px;
-}
-
-/* APP WINDOW */
-
-#window{
-position:absolute;
-top:60px;
-left:230px;
-right:10px;
-bottom:10px;
-border:3px solid var(--yellow);
-background:black;
-resize:both;
-overflow:hidden;
-}
-
-#titlebar{
-background:#4a0000;
-padding:6px;
-cursor:move;
-border-bottom:1px solid var(--yellow);
+.gamebox{
+    width:90%;
+    max-width:1100px;
+    height:650px;
+    border:4px solid red;
+    box-shadow:0 0 30px red;
+    background:black;
 }
 
 iframe{
-width:100%;
-height:calc(100% - 30px);
-border:none;
+    width:100%;
+    height:100%;
+    border:none;
 }
 
-/* TANKS */
-
-.tank{
-position:fixed;
-top:50%;
-transform:translateY(-50%);
-width:180px;
-opacity:.8;
-pointer-events:none;
+.footer{
+    position:fixed;
+    bottom:10px;
+    width:100%;
+    text-align:center;
+    font-size:14px;
+    opacity:0.7;
 }
 
-#tankLeft{left:0;}
-
-#tankRight{
-right:0;
-transform:translateY(-50%) scaleX(-1);
+.tanks{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    pointer-events:none;
 }
 
-/* CRT EFFECT */
-
-.crt{
-filter:contrast(1.2) brightness(1.1) saturate(1.2);
+.tanks img{
+    width:220px;
+    opacity:0.85;
 }
-
 </style>
 </head>
 
 <body>
 
-<div id="flag">☭</div>
-<div id="radar"></div>
+<header>
+☭ IRON CLIENT ☭
+</header>
 
-<img id="tankLeft" class="tank" src="https://pngimg.com/uploads/tank/tank_PNG132.png">
-<img id="tankRight" class="tank" src="https://pngimg.com/uploads/tank/tank_PNG132.png">
-
-<canvas id="matrix"></canvas>
-
-<div id="boot"></div>
-
-<div id="settings">
-
-<h3>SETTINGS</h3>
-
-<button onclick="toggleMatrix()">Toggle Matrix</button>
-<button onclick="toggleFlag()">Toggle Flag</button>
-<button onclick="toggleRadar()">Toggle Radar</button>
-<button onclick="toggleTanks()">Toggle Tanks</button>
-<button onclick="toggleFPS()">Toggle FPS</button>
-<button onclick="toggleCRT()">Toggle CRT</button>
-<button onclick="performanceMode()">Performance Mode</button>
-<button onclick="fullscreenApp()">Fullscreen</button>
-
+<div class="container">
+<div class="gamebox">
+<iframe src="https://eaglercraft1-8.github.io/"></iframe>
+</div>
 </div>
 
-<div id="topbar">
-☭ SOVIET TERMINAL OS
-<div id="fps">FPS:0</div>
+<div class="tanks">
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/5b/T-34_tank.png">
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/5b/T-34_tank.png">
 </div>
 
-<div id="window">
-
-<div id="titlebar">APPLICATION TERMINAL</div>
-
-<iframe id="app"></iframe>
-
+<div class="footer">
+Strength • Steel • Victory
 </div>
-
-<script>
-
-/* PUT YOUR LINK HERE */
-
-const APP_URL="https://eaglercraft1-8.github.io/";
-
-/* BOOT SCREEN */
-
-const bootText=`SOVIET TERMINAL OS
-MILITARY NODE CONNECTED
-ACCESS GRANTED COMRADE
-INITIALIZING SYSTEM`;
-
-let i=0;
-
-function boot(){
-
-if(i<bootText.length){
-
-bootDiv.innerHTML+=bootText[i++];
-setTimeout(boot,20);
-
-}else{
-
-setTimeout(()=>{
-
-bootDiv.style.display="none";
-settings.style.display="block";
-app.src=APP_URL;
-
-},800);
-
-}
-
-}
-
-const bootDiv=document.getElementById("boot");
-boot();
-
-/* MATRIX */
-
-const canvas=document.getElementById("matrix");
-const ctx=canvas.getContext("2d");
-
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-
-let fontSize=18;
-let columns=Math.floor(canvas.width/fontSize);
-let drops=[];
-
-for(let x=0;x<columns;x++) drops[x]=1;
-
-const words=["☭","SOVIET","UNION"];
-
-let matrix=true;
-
-function drawMatrix(){
-
-if(!matrix)return;
-
-ctx.fillStyle="rgba(0,0,0,0.15)";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-ctx.fillStyle="#ffd700";
-ctx.font=fontSize+"px monospace";
-
-for(let i=0;i<drops.length;i++){
-
-let text=words[Math.floor(Math.random()*words.length)];
-
-ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-
-if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
-drops[i]=0;
-
-drops[i]++;
-
-}
-
-}
-
-setInterval(drawMatrix,50);
-
-/* FPS COUNTER */
-
-let frames=0;
-let last=performance.now();
-
-function fpsLoop(){
-
-frames++;
-
-let now=performance.now();
-
-if(now-last>=1000){
-
-fps.innerText="FPS:"+frames;
-frames=0;
-last=now;
-
-}
-
-requestAnimationFrame(fpsLoop);
-
-}
-
-fpsLoop();
-
-/* SETTINGS FUNCTIONS */
-
-function toggleMatrix(){matrix=!matrix;}
-
-function toggleFlag(){
-flag.style.display = flag.style.display==="none"?"block":"none";
-}
-
-function toggleRadar(){
-radar.style.display = radar.style.display==="none"?"block":"block":"none";
-}
-
-function toggleTanks(){
-
-let state=tankLeft.style.display==="none";
-
-tankLeft.style.display=state?"block":"none";
-tankRight.style.display=state?"block":"none";
-
-}
-
-function toggleFPS(){
-fps.style.display=fps.style.display==="none"?"block":"none";
-}
-
-function toggleCRT(){
-document.body.classList.toggle("crt");
-}
-
-function performanceMode(){
-fontSize=26;
-}
-
-function fullscreenApp(){
-app.requestFullscreen();
-}
-
-/* DRAG WINDOW */
-
-let win=document.getElementById("window");
-let bar=document.getElementById("titlebar");
-
-bar.onmousedown=function(e){
-
-let x=e.clientX-win.offsetLeft;
-let y=e.clientY-win.offsetTop;
-
-document.onmousemove=function(e){
-
-win.style.left=e.clientX-x+"px";
-win.style.top=e.clientY-y+"px";
-
-};
-
-document.onmouseup=function(){
-
-document.onmousemove=null;
-
-};
-
-};
-
-/* RESIZE MATRIX */
-
-window.addEventListener("resize",()=>{
-
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-
-});
-
-</script>
 
 </body>
 </html>
