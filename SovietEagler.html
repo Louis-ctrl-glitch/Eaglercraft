@@ -2,32 +2,34 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>RED BUNKER CLIENT</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<title>Soviet Eaglercraft Loader</title>
 
 <style>
+
 body{
 margin:0;
 background:black;
-color:#ff2a2a;
-font-family:'Share Tech Mono',monospace;
+font-family:monospace;
+color:#00ff00;
 overflow:hidden;
 }
 
-/* Transparent flag */
+/* Soviet flag background */
+
 #flag{
 position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-font-size:40vw;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Flag_of_the_Soviet_Union.svg/1920px-Flag_of_the_Soviet_Union.svg.png");
+background-size:cover;
 opacity:0.76;
-color:red;
 z-index:-2;
-pointer-events:none;
 }
 
-/* Matrix */
+/* Matrix canvas */
+
 #matrix{
 position:fixed;
 top:0;
@@ -35,91 +37,86 @@ left:0;
 z-index:-1;
 }
 
-/* Tanks */
-.tank{
+/* Boot screen */
+
+#boot{
 position:fixed;
+width:100%;
+height:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+font-size:22px;
+background:black;
+z-index:5;
+}
+
+/* Main UI */
+
+#ui{
+display:none;
+height:100vh;
+width:100vw;
+}
+
+/* Game frame */
+
+#gameFrame{
+position:absolute;
+top:60px;
+left:220px;
+right:220px;
+bottom:20px;
+border:3px solid #00ff00;
+}
+
+/* Tanks */
+
+.tank{
+position:absolute;
 top:50%;
 transform:translateY(-50%);
-width:220px;
-opacity:.9;
-pointer-events:none;
-z-index:1;
+width:200px;
+opacity:0.85;
 }
 
-#tankLeft{left:15px;}
-#tankRight{right:15px; transform:translateY(-50%) scaleX(-1);}
+#tankLeft{ left:5px; }
+#tankRight{ right:5px; transform:translateY(-50%) scaleX(-1); }
 
-/* Boot screen */
-#boot{
-position:absolute;
-padding:20px;
-white-space:pre-line;
-}
+/* Top bar */
 
-/* Desktop */
-#desktop{
-display:none;
-width:100%;
-height:100%;
-}
-
-/* Client frame window */
-.window{
-position:absolute;
-top:5%;
-left:12%;
-width:76%;
-height:90%;
-background:#100000;
-border:2px solid red;
-box-shadow:0 0 30px red;
-z-index:2;
+#topbar{
+height:50px;
+background:black;
+border-bottom:2px solid #00ff00;
 display:flex;
-flex-direction:column;
+align-items:center;
+padding-left:10px;
 }
 
-.titlebar{
-background:#300000;
-padding:6px;
-border-bottom:1px solid red;
-}
+/* FPS */
 
-.frame-container{
-flex:1;
-position:relative;
-}
-
-iframe{
-width:100%;
-height:100%;
-border:none;
-background:black;
-}
-
-/* FPS counter */
 #fps{
-position:fixed;
-top:5px;
-right:10px;
-color:lime;
-font-size:14px;
-z-index:10;
+margin-left:auto;
+margin-right:20px;
 }
 
-button{
-background:black;
-color:yellow;
-border:1px solid yellow;
-font-family:inherit;
-margin:2px;
-cursor:pointer;
-}
+/* Settings panel */
 
-#controls{
-position:fixed;
-top:10px;
+#settings{
+position:absolute;
+top:60px;
 left:10px;
-z-index:10;
+width:190px;
+background:black;
+border:2px solid #00ff00;
+padding:10px;
+font-size:13px;
+}
+
+input[type=range]{
+width:100%;
 }
 
 </style>
@@ -127,68 +124,94 @@ z-index:10;
 
 <body>
 
-<div id="flag">☭</div>
-
-<img class="tank" id="tankLeft" src="https://pngimg.com/uploads/tank/tank_PNG132.png">
-<img class="tank" id="tankRight" src="https://pngimg.com/uploads/tank/tank_PNG132.png">
-
+<div id="flag"></div>
 <canvas id="matrix"></canvas>
 
-<div id="controls">
-<button onclick="toggleMatrix()">Matrix</button>
-<button onclick="togglePerformance()">Performance</button>
+<!-- Boot Screen -->
+
+<div id="boot">
+<div>SOVIET SYSTEM BOOTING...</div>
+<div id="bootText"></div>
 </div>
 
-<div id="boot"></div>
+<!-- Main UI -->
 
-<div id="desktop">
+<div id="ui">
 
-<div class="window">
-
-<div class="titlebar">☭ SOVIET CLIENT TERMINAL ☭</div>
-
-<div class="frame-container">
-<iframe id="clientFrame"></iframe>
+<div id="topbar">
+SOVIET EAGLERCRAFT TERMINAL
+<div id="fps">FPS: 0</div>
 </div>
 
-</div>
+<div id="settings">
+
+<b>Settings</b><br><br>
+
+Matrix Speed
+<input type="range" id="speed" min="2" max="20" value="10">
+
+Matrix Density
+<input type="range" id="density" min="5" max="40" value="20">
+
+Matrix Color
+<input type="color" id="color" value="#00ff00">
+
+<br><br>
+
+<label><input type="checkbox" id="toggleMatrix" checked> Matrix</label><br>
+<label><input type="checkbox" id="toggleFlag" checked> Flag</label><br>
+<label><input type="checkbox" id="toggleTanks" checked> Tanks</label><br>
+<label><input type="checkbox" id="toggleFPS" checked> FPS</label>
 
 </div>
 
-<div id="fps"></div>
+<img id="tankLeft" class="tank"
+src="https://upload.wikimedia.org/wikipedia/commons/5/5a/T-34-85_tank.jpg">
+
+<img id="tankRight" class="tank"
+src="https://upload.wikimedia.org/wikipedia/commons/5/5a/T-34-85_tank.jpg">
+
+<iframe id="gameFrame"
+src="https://eaglercraft1-8.github.io/"
+allowfullscreen></iframe>
+
+</div>
 
 <script>
 
-/* EDIT THIS */
-const CLIENT_LINK="https://eaglercraft1-8.github.io/";
+/* =========================
+BOOT TEXT
+========================= */
 
-/* Boot sequence */
+const bootLines=[
+"INITIALIZING SOVIET NETWORK...",
+"LOADING COMMUNIST PROTOCOLS...",
+"AUTHORIZING COMRADE...",
+"ACCESS GRANTED"
+];
 
-const bootText=`RED BUNKER OS
-MILITARY NETWORK NODE
-AUTHORIZATION GRANTED
-WELCOME COMRADE
-INITIALIZING CLIENT...`;
+let bootIndex=0;
 
-let i=0;
-const bootDiv=document.getElementById("boot");
-
-function boot(){
-if(i<bootText.length){
-bootDiv.innerHTML+=bootText[i++];
-setTimeout(boot,20);
+function bootNext(){
+if(bootIndex<bootLines.length){
+document.getElementById("bootText").innerHTML+=bootLines[bootIndex]+"<br>";
+bootIndex++;
+setTimeout(bootNext,900);
 }else{
+
 setTimeout(()=>{
-bootDiv.style.display="none";
-desktop.style.display="block";
-document.getElementById("clientFrame").src=CLIENT_LINK;
-},700);
+document.getElementById("boot").style.display="none";
+document.getElementById("ui").style.display="block";
+},800);
+
 }
 }
 
-boot();
+bootNext();
 
-/* Matrix effect */
+/* =========================
+MATRIX RAIN
+========================= */
 
 const canvas=document.getElementById("matrix");
 const ctx=canvas.getContext("2d");
@@ -196,63 +219,76 @@ const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
-let fontSize=20;
-let columns=canvas.width/fontSize;
+let letters="SOVIET UNION ☭ ☭ ☭ 010101";
+letters=letters.split("");
+
+let fontSize=16;
+let columns;
 let drops=[];
 
-for(let i=0;i<columns;i++)drops[i]=1;
+let matrixSpeed=10;
+let matrixDensity=20;
+let matrixColor="#00ff00";
 
-let matrixOn=true;
-let performanceMode=false;
+function initMatrix(){
+
+columns=canvas.width/fontSize;
+
+drops=[];
+
+for(let i=0;i<columns;i++){
+drops[i]=Math.random()*canvas.height;
+}
+
+}
+
+initMatrix();
 
 function drawMatrix(){
 
-if(!matrixOn) return;
-
-ctx.fillStyle="rgba(0,0,0,0.15)";
+ctx.fillStyle="rgba(0,0,0,0.05)";
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-ctx.fillStyle="#FFD700";
+ctx.fillStyle=matrixColor;
 ctx.font=fontSize+"px monospace";
 
 for(let i=0;i<drops.length;i++){
 
-ctx.fillText("☭",i*fontSize,drops[i]*fontSize);
+const text=letters[Math.floor(Math.random()*letters.length)];
 
-if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+
+if(drops[i]*fontSize>canvas.height && Math.random()>0.975){
 drops[i]=0;
+}
 
-drops[i]++;
+drops[i]+=matrixSpeed/10;
 
 }
 
 }
 
-setInterval(drawMatrix, performanceMode ? 120 : 50);
+setInterval(drawMatrix,50);
 
-function toggleMatrix(){
-matrixOn=!matrixOn;
-}
+/* =========================
+FPS COUNTER
+========================= */
 
-function togglePerformance(){
-performanceMode=!performanceMode;
-}
-
-/* FPS counter */
-
-let last=performance.now();
+let fps=0;
 let frames=0;
+let last=performance.now();
 
 function fpsLoop(){
 
 frames++;
 
-let now=performance.now();
+const now=performance.now();
 
 if(now-last>=1000){
-fps.innerText="FPS: "+frames;
+fps=frames;
 frames=0;
 last=now;
+document.getElementById("fps").innerText="FPS: "+fps;
 }
 
 requestAnimationFrame(fpsLoop);
@@ -261,12 +297,50 @@ requestAnimationFrame(fpsLoop);
 
 fpsLoop();
 
-/* Resize */
+/* =========================
+SETTINGS
+========================= */
 
-window.addEventListener("resize",()=>{
+document.getElementById("speed").oninput=e=>{
+matrixSpeed=e.target.value;
+};
+
+document.getElementById("density").oninput=e=>{
+matrixDensity=e.target.value;
+initMatrix();
+};
+
+document.getElementById("color").oninput=e=>{
+matrixColor=e.target.value;
+};
+
+document.getElementById("toggleMatrix").onchange=e=>{
+canvas.style.display=e.target.checked?"block":"none";
+};
+
+document.getElementById("toggleFlag").onchange=e=>{
+document.getElementById("flag").style.display=e.target.checked?"block":"none";
+};
+
+document.getElementById("toggleTanks").onchange=e=>{
+const v=e.target.checked?"block":"none";
+document.getElementById("tankLeft").style.display=v;
+document.getElementById("tankRight").style.display=v;
+};
+
+document.getElementById("toggleFPS").onchange=e=>{
+document.getElementById("fps").style.display=e.target.checked?"block":"none";
+};
+
+/* =========================
+RESIZE
+========================= */
+
+window.onresize=()=>{
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
-});
+initMatrix();
+};
 
 </script>
 
