@@ -2,33 +2,21 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Soviet Eaglercraft Loader</title>
+<title>SOVIET TERMINAL OS</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
 
 body{
 margin:0;
 background:black;
-font-family:monospace;
 color:#00ff00;
+font-family:'Share Tech Mono',monospace;
 overflow:hidden;
 }
 
-/* Soviet flag background */
-
-#flag{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Flag_of_the_Soviet_Union.svg/1920px-Flag_of_the_Soviet_Union.svg.png");
-background-size:cover;
-opacity:0.76;
-z-index:-2;
-}
-
-/* Matrix canvas */
+/* MATRIX */
 
 #matrix{
 position:fixed;
@@ -37,86 +25,137 @@ left:0;
 z-index:-1;
 }
 
-/* Boot screen */
+/* FLAG */
 
-#boot{
+#flag{
 position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:40vw;
+opacity:.76;
+color:red;
+pointer-events:none;
+z-index:-2;
+}
+
+/* RADAR */
+
+#radar{
+position:fixed;
+top:0;
+left:0;
 width:100%;
 height:100%;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-font-size:22px;
-background:black;
-z-index:5;
+pointer-events:none;
+background:
+radial-gradient(circle at center, rgba(0,255,0,.2) 0%, transparent 60%);
+animation: radarSweep 6s linear infinite;
+z-index:-1;
 }
 
-/* Main UI */
-
-#ui{
-display:none;
-height:100vh;
-width:100vw;
+@keyframes radarSweep{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
 }
 
-/* Game frame */
+/* BOOT */
 
-#gameFrame{
+#boot{
 position:absolute;
-top:60px;
-left:220px;
-right:220px;
-bottom:20px;
-border:3px solid #00ff00;
+top:40%;
+left:50%;
+transform:translate(-50%,-50%);
+white-space:pre-line;
 }
 
-/* Tanks */
+/* SETTINGS */
 
-.tank{
-position:absolute;
-top:50%;
-transform:translateY(-50%);
+#settings{
+position:fixed;
+left:0;
+top:0;
 width:200px;
-opacity:0.85;
+height:100%;
+background:#020202;
+border-right:2px solid #00ff00;
+padding:10px;
+z-index:10;
+display:none;
 }
 
-#tankLeft{ left:5px; }
-#tankRight{ right:5px; transform:translateY(-50%) scaleX(-1); }
+button{
+width:100%;
+margin:4px 0;
+background:black;
+color:#00ff00;
+border:1px solid #00ff00;
+cursor:pointer;
+}
 
-/* Top bar */
+/* TOPBAR */
 
 #topbar{
-height:50px;
-background:black;
+position:fixed;
+left:200px;
+right:0;
+top:0;
+height:45px;
+background:#050505;
 border-bottom:2px solid #00ff00;
 display:flex;
 align-items:center;
 padding-left:10px;
+z-index:9;
 }
-
-/* FPS */
 
 #fps{
 margin-left:auto;
-margin-right:20px;
+margin-right:15px;
 }
 
-/* Settings panel */
+/* WINDOW */
 
-#settings{
+#window{
 position:absolute;
 top:60px;
-left:10px;
-width:190px;
+left:210px;
+right:10px;
+bottom:10px;
+border:3px solid #00ff00;
 background:black;
-border:2px solid #00ff00;
-padding:10px;
-font-size:13px;
+resize:both;
+overflow:hidden;
 }
 
-input[type=range]{
+#titlebar{
+background:#031203;
+padding:5px;
+cursor:move;
+border-bottom:1px solid #00ff00;
+}
+
+iframe{
 width:100%;
+height:calc(100% - 30px);
+border:none;
+}
+
+/* TANKS */
+
+.tank{
+position:fixed;
+top:50%;
+transform:translateY(-50%);
+width:200px;
+opacity:.85;
+pointer-events:none;
+}
+
+#tankLeft{left:0;}
+#tankRight{
+right:0;
+transform:translateY(-50%) scaleX(-1);
 }
 
 </style>
@@ -124,94 +163,79 @@ width:100%;
 
 <body>
 
-<div id="flag"></div>
+<div id="flag">☭</div>
+<div id="radar"></div>
+
+<img id="tankLeft" class="tank" src="https://pngimg.com/uploads/tank/tank_PNG132.png">
+<img id="tankRight" class="tank" src="https://pngimg.com/uploads/tank/tank_PNG132.png">
+
 <canvas id="matrix"></canvas>
 
-<!-- Boot Screen -->
-
-<div id="boot">
-<div>SOVIET SYSTEM BOOTING...</div>
-<div id="bootText"></div>
-</div>
-
-<!-- Main UI -->
-
-<div id="ui">
-
-<div id="topbar">
-SOVIET EAGLERCRAFT TERMINAL
-<div id="fps">FPS: 0</div>
-</div>
+<div id="boot"></div>
 
 <div id="settings">
 
-<b>Settings</b><br><br>
+<h3>SETTINGS</h3>
 
-Matrix Speed
-<input type="range" id="speed" min="2" max="20" value="10">
-
-Matrix Density
-<input type="range" id="density" min="5" max="40" value="20">
-
-Matrix Color
-<input type="color" id="color" value="#00ff00">
-
-<br><br>
-
-<label><input type="checkbox" id="toggleMatrix" checked> Matrix</label><br>
-<label><input type="checkbox" id="toggleFlag" checked> Flag</label><br>
-<label><input type="checkbox" id="toggleTanks" checked> Tanks</label><br>
-<label><input type="checkbox" id="toggleFPS" checked> FPS</label>
+<button onclick="toggleMatrix()">Matrix</button>
+<button onclick="toggleFlag()">Flag</button>
+<button onclick="toggleRadar()">Radar</button>
+<button onclick="toggleTanks()">Tanks</button>
+<button onclick="toggleFPS()">FPS</button>
+<button onclick="performanceMode()">Performance</button>
+<button onclick="fullscreen()">Fullscreen</button>
 
 </div>
 
-<img id="tankLeft" class="tank"
-src="https://upload.wikimedia.org/wikipedia/commons/5/5a/T-34-85_tank.jpg">
+<div id="topbar">
+☭ SOVIET TERMINAL OS
+<div id="fps">FPS: 0</div>
+</div>
 
-<img id="tankRight" class="tank"
-src="https://upload.wikimedia.org/wikipedia/commons/5/5a/T-34-85_tank.jpg">
+<div id="window">
 
-<iframe id="gameFrame"
-src="https://eaglercraft1-8.github.io/"
-allowfullscreen></iframe>
+<div id="titlebar">APPLICATION TERMINAL</div>
+
+<iframe id="app"></iframe>
 
 </div>
 
 <script>
 
-/* =========================
-BOOT TEXT
-========================= */
+/* PUT YOUR APP URL HERE */
 
-const bootLines=[
-"INITIALIZING SOVIET NETWORK...",
-"LOADING COMMUNIST PROTOCOLS...",
-"AUTHORIZING COMRADE...",
-"ACCESS GRANTED"
-];
+const APP_URL="https://eaglercraft1-8.github.io/";
 
-let bootIndex=0;
+/* BOOT */
 
-function bootNext(){
-if(bootIndex<bootLines.length){
-document.getElementById("bootText").innerHTML+=bootLines[bootIndex]+"<br>";
-bootIndex++;
-setTimeout(bootNext,900);
+const bootText=`SOVIET TERMINAL OS
+MILITARY NODE CONNECTED
+ACCESS LEVEL: COMRADE
+LOADING SYSTEM MODULES
+INITIALIZING NETWORK`;
+
+let i=0;
+
+function boot(){
+
+if(i<bootText.length){
+document.getElementById("boot").innerHTML+=bootText[i++];
+setTimeout(boot,20);
 }else{
 
 setTimeout(()=>{
 document.getElementById("boot").style.display="none";
-document.getElementById("ui").style.display="block";
+document.getElementById("settings").style.display="block";
+document.getElementById("app").src=APP_URL;
 },800);
 
 }
+
 }
 
-bootNext();
+boot();
 
-/* =========================
-MATRIX RAIN
-========================= */
+/* MATRIX */
 
 const canvas=document.getElementById("matrix");
 const ctx=canvas.getContext("2d");
@@ -219,62 +243,46 @@ const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
-let letters="SOVIET UNION ☭ ☭ ☭ 010101";
-letters=letters.split("");
+let fontSize=18;
+let columns=canvas.width/fontSize;
 
-let fontSize=16;
-let columns;
 let drops=[];
 
-let matrixSpeed=10;
-let matrixDensity=20;
-let matrixColor="#00ff00";
+for(let x=0;x<columns;x++) drops[x]=1;
 
-function initMatrix(){
+const words=["☭","SOVIET","UNION"];
 
-columns=canvas.width/fontSize;
+let matrix=true;
 
-drops=[];
+function draw(){
 
-for(let i=0;i<columns;i++){
-drops[i]=Math.random()*canvas.height;
-}
+if(!matrix)return;
 
-}
-
-initMatrix();
-
-function drawMatrix(){
-
-ctx.fillStyle="rgba(0,0,0,0.05)";
+ctx.fillStyle="rgba(0,0,0,0.15)";
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-ctx.fillStyle=matrixColor;
+ctx.fillStyle="#FFD700";
 ctx.font=fontSize+"px monospace";
 
 for(let i=0;i<drops.length;i++){
 
-const text=letters[Math.floor(Math.random()*letters.length)];
+let text=words[Math.floor(Math.random()*words.length)];
 
 ctx.fillText(text,i*fontSize,drops[i]*fontSize);
 
-if(drops[i]*fontSize>canvas.height && Math.random()>0.975){
+if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
 drops[i]=0;
-}
 
-drops[i]+=matrixSpeed/10;
-
-}
+drops[i]++;
 
 }
 
-setInterval(drawMatrix,50);
+}
 
-/* =========================
-FPS COUNTER
-========================= */
+setInterval(draw,50);
 
-let fps=0;
+/* FPS */
+
 let frames=0;
 let last=performance.now();
 
@@ -282,13 +290,15 @@ function fpsLoop(){
 
 frames++;
 
-const now=performance.now();
+let now=performance.now();
 
 if(now-last>=1000){
-fps=frames;
+
+document.getElementById("fps").innerText="FPS: "+frames;
+
 frames=0;
 last=now;
-document.getElementById("fps").innerText="FPS: "+fps;
+
 }
 
 requestAnimationFrame(fpsLoop);
@@ -297,50 +307,91 @@ requestAnimationFrame(fpsLoop);
 
 fpsLoop();
 
-/* =========================
-SETTINGS
-========================= */
+/* SETTINGS */
 
-document.getElementById("speed").oninput=e=>{
-matrixSpeed=e.target.value;
+function toggleMatrix(){matrix=!matrix;}
+
+function toggleFlag(){
+
+let f=document.getElementById("flag");
+
+f.style.display=f.style.display==="none"?"block":"none";
+
+}
+
+function toggleRadar(){
+
+let r=document.getElementById("radar");
+
+r.style.display=r.style.display==="none"?"block":"none";
+
+}
+
+function toggleTanks(){
+
+let l=document.getElementById("tankLeft");
+let r=document.getElementById("tankRight");
+
+let state=l.style.display==="none";
+
+l.style.display=state?"block":"none";
+r.style.display=state?"block":"none";
+
+}
+
+function toggleFPS(){
+
+let f=document.getElementById("fps");
+
+f.style.display=f.style.display==="none"?"block":"none";
+
+}
+
+function performanceMode(){
+
+fontSize=26;
+
+}
+
+/* FULLSCREEN */
+
+function fullscreen(){
+
+document.getElementById("app").requestFullscreen();
+
+}
+
+/* DRAG WINDOW */
+
+let win=document.getElementById("window");
+let bar=document.getElementById("titlebar");
+
+bar.onmousedown=function(e){
+
+let x=e.clientX-win.offsetLeft;
+let y=e.clientY-win.offsetTop;
+
+document.onmousemove=function(e){
+
+win.style.left=e.clientX-x+"px";
+win.style.top=e.clientY-y+"px";
+
 };
 
-document.getElementById("density").oninput=e=>{
-matrixDensity=e.target.value;
-initMatrix();
+document.onmouseup=function(){
+
+document.onmousemove=null;
+
 };
 
-document.getElementById("color").oninput=e=>{
-matrixColor=e.target.value;
 };
 
-document.getElementById("toggleMatrix").onchange=e=>{
-canvas.style.display=e.target.checked?"block":"none";
-};
+window.addEventListener("resize",()=>{
 
-document.getElementById("toggleFlag").onchange=e=>{
-document.getElementById("flag").style.display=e.target.checked?"block":"none";
-};
-
-document.getElementById("toggleTanks").onchange=e=>{
-const v=e.target.checked?"block":"none";
-document.getElementById("tankLeft").style.display=v;
-document.getElementById("tankRight").style.display=v;
-};
-
-document.getElementById("toggleFPS").onchange=e=>{
-document.getElementById("fps").style.display=e.target.checked?"block":"none";
-};
-
-/* =========================
-RESIZE
-========================= */
-
-window.onresize=()=>{
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
-initMatrix();
-};
+
+});
 
 </script>
 
