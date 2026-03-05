@@ -6,7 +6,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
-
 body{
 margin:0;
 background:black;
@@ -15,7 +14,7 @@ font-family:'Share Tech Mono',monospace;
 overflow:hidden;
 }
 
-/* Soviet flag */
+/* Transparent flag */
 #flag{
 position:fixed;
 top:50%;
@@ -42,16 +41,15 @@ position:fixed;
 top:50%;
 transform:translateY(-50%);
 width:220px;
-opacity:0.9;
-z-index:1;
+opacity:.9;
 pointer-events:none;
+z-index:1;
 }
 
-#tankLeft{ left:20px; }
-#tankRight{ right:20px; transform:translateY(-50%) scaleX(-1); }
+#tankLeft{left:15px;}
+#tankRight{right:15px; transform:translateY(-50%) scaleX(-1);}
 
 /* Boot screen */
-
 #boot{
 position:absolute;
 padding:20px;
@@ -59,15 +57,13 @@ white-space:pre-line;
 }
 
 /* Desktop */
-
 #desktop{
 display:none;
 width:100%;
 height:100%;
 }
 
-/* Frame window */
-
+/* Client frame window */
 .window{
 position:absolute;
 top:5%;
@@ -76,8 +72,10 @@ width:76%;
 height:90%;
 background:#100000;
 border:2px solid red;
-box-shadow:0 0 25px red;
+box-shadow:0 0 30px red;
 z-index:2;
+display:flex;
+flex-direction:column;
 }
 
 .titlebar{
@@ -86,19 +84,25 @@ padding:6px;
 border-bottom:1px solid red;
 }
 
+.frame-container{
+flex:1;
+position:relative;
+}
+
 iframe{
 width:100%;
-height:calc(100% - 32px);
+height:100%;
 border:none;
 background:black;
 }
 
-/* Controls */
-
-#controls{
+/* FPS counter */
+#fps{
 position:fixed;
-top:10px;
-left:10px;
+top:5px;
+right:10px;
+color:lime;
+font-size:14px;
 z-index:10;
 }
 
@@ -107,19 +111,15 @@ background:black;
 color:yellow;
 border:1px solid yellow;
 font-family:inherit;
-padding:4px 8px;
+margin:2px;
 cursor:pointer;
 }
 
-/* FPS */
-
-#fps{
+#controls{
 position:fixed;
-top:5px;
-right:10px;
-color:lime;
-font-size:14px;
-z-index:20;
+top:10px;
+left:10px;
+z-index:10;
 }
 
 </style>
@@ -145,11 +145,11 @@ z-index:20;
 
 <div class="window">
 
-<div class="titlebar">
-☭ SOVIET CLIENT TERMINAL ☭
-</div>
+<div class="titlebar">☭ SOVIET CLIENT TERMINAL ☭</div>
 
+<div class="frame-container">
 <iframe id="clientFrame"></iframe>
+</div>
 
 </div>
 
@@ -162,43 +162,33 @@ z-index:20;
 /* EDIT THIS */
 const CLIENT_LINK="https://eaglercraft1-8.github.io/";
 
-/* Boot screen */
+/* Boot sequence */
 
-const bootText=
-`RED BUNKER OS
+const bootText=`RED BUNKER OS
 MILITARY NETWORK NODE
-AUTHORIZATION: GRANTED
+AUTHORIZATION GRANTED
 WELCOME COMRADE
-LOADING CLIENT...`;
+INITIALIZING CLIENT...`;
 
 let i=0;
 const bootDiv=document.getElementById("boot");
 
 function boot(){
-
 if(i<bootText.length){
-
 bootDiv.innerHTML+=bootText[i++];
 setTimeout(boot,20);
-
 }else{
-
 setTimeout(()=>{
-
 bootDiv.style.display="none";
 desktop.style.display="block";
-
 document.getElementById("clientFrame").src=CLIENT_LINK;
-
-},800);
-
+},700);
 }
-
 }
 
 boot();
 
-/* MATRIX */
+/* Matrix effect */
 
 const canvas=document.getElementById("matrix");
 const ctx=canvas.getContext("2d");
@@ -210,7 +200,7 @@ let fontSize=20;
 let columns=canvas.width/fontSize;
 let drops=[];
 
-for(let i=0;i<columns;i++) drops[i]=1;
+for(let i=0;i<columns;i++)drops[i]=1;
 
 let matrixOn=true;
 let performanceMode=false;
@@ -238,7 +228,7 @@ drops[i]++;
 
 }
 
-setInterval(drawMatrix,performanceMode?120:50);
+setInterval(drawMatrix, performanceMode ? 120 : 50);
 
 function toggleMatrix(){
 matrixOn=!matrixOn;
@@ -274,10 +264,8 @@ fpsLoop();
 /* Resize */
 
 window.addEventListener("resize",()=>{
-
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
-
 });
 
 </script>
