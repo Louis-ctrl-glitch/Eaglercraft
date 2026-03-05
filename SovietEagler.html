@@ -2,27 +2,23 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>SOVIET TERMINAL OS</title>
+<title>Soviet Terminal OS</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
 
+:root{
+--red:#b30000;
+--yellow:#ffd700;
+}
+
 body{
 margin:0;
 background:black;
-color:#00ff00;
 font-family:'Share Tech Mono',monospace;
+color:var(--yellow);
 overflow:hidden;
-}
-
-/* MATRIX */
-
-#matrix{
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
 }
 
 /* FLAG */
@@ -32,10 +28,19 @@ position:fixed;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
-font-size:40vw;
-opacity:.76;
-color:red;
+font-size:45vw;
+opacity:0.3235732;
+color:var(--red);
 pointer-events:none;
+z-index:-3;
+}
+
+/* MATRIX */
+
+#matrix{
+position:fixed;
+top:0;
+left:0;
 z-index:-2;
 }
 
@@ -43,19 +48,17 @@ z-index:-2;
 
 #radar{
 position:fixed;
-top:0;
-left:0;
 width:100%;
 height:100%;
 pointer-events:none;
 background:
-radial-gradient(circle at center, rgba(0,255,0,.2) 0%, transparent 60%);
-animation: radarSweep 6s linear infinite;
+conic-gradient(rgba(255,0,0,.2),transparent 60%);
+animation:spin 6s linear infinite;
 z-index:-1;
 }
 
-@keyframes radarSweep{
-0%{transform:rotate(0deg)}
+@keyframes spin{
+0%{transform:rotate(0)}
 100%{transform:rotate(360deg)}
 }
 
@@ -67,29 +70,32 @@ top:40%;
 left:50%;
 transform:translate(-50%,-50%);
 white-space:pre-line;
+font-size:18px;
+color:var(--yellow);
 }
 
-/* SETTINGS */
+/* SETTINGS PANEL */
 
 #settings{
 position:fixed;
 left:0;
 top:0;
-width:200px;
+width:220px;
 height:100%;
-background:#020202;
-border-right:2px solid #00ff00;
+background:#1a0000;
+border-right:2px solid var(--yellow);
 padding:10px;
-z-index:10;
 display:none;
+overflow:auto;
 }
 
 button{
 width:100%;
 margin:4px 0;
 background:black;
-color:#00ff00;
-border:1px solid #00ff00;
+border:1px solid var(--yellow);
+color:var(--yellow);
+font-family:inherit;
 cursor:pointer;
 }
 
@@ -97,43 +103,44 @@ cursor:pointer;
 
 #topbar{
 position:fixed;
-left:200px;
+left:220px;
 right:0;
 top:0;
 height:45px;
-background:#050505;
-border-bottom:2px solid #00ff00;
+background:#300000;
+border-bottom:2px solid var(--yellow);
 display:flex;
 align-items:center;
 padding-left:10px;
-z-index:9;
 }
 
 #fps{
 margin-left:auto;
-margin-right:15px;
+margin-right:10px;
 }
 
 /* WINDOW */
 
 #window{
 position:absolute;
-top:60px;
-left:210px;
+top:55px;
+left:230px;
 right:10px;
 bottom:10px;
-border:3px solid #00ff00;
+border:3px solid var(--yellow);
 background:black;
 resize:both;
 overflow:hidden;
 }
 
 #titlebar{
-background:#031203;
-padding:5px;
+background:#450000;
+padding:6px;
 cursor:move;
-border-bottom:1px solid #00ff00;
+border-bottom:1px solid var(--yellow);
 }
+
+/* FRAME */
 
 iframe{
 width:100%;
@@ -147,12 +154,13 @@ border:none;
 position:fixed;
 top:50%;
 transform:translateY(-50%);
-width:200px;
+width:180px;
 opacity:.85;
 pointer-events:none;
 }
 
 #tankLeft{left:0;}
+
 #tankRight{
 right:0;
 transform:translateY(-50%) scaleX(-1);
@@ -182,14 +190,16 @@ transform:translateY(-50%) scaleX(-1);
 <button onclick="toggleRadar()">Radar</button>
 <button onclick="toggleTanks()">Tanks</button>
 <button onclick="toggleFPS()">FPS</button>
-<button onclick="performanceMode()">Performance</button>
-<button onclick="fullscreen()">Fullscreen</button>
+<button onclick="toggleCRT()">CRT Effect</button>
+<button onclick="toggleIcons()">Desktop Icons</button>
+<button onclick="performanceMode()">Performance Mode</button>
+<button onclick="fullscreenApp()">Fullscreen</button>
 
 </div>
 
 <div id="topbar">
 ☭ SOVIET TERMINAL OS
-<div id="fps">FPS: 0</div>
+<div id="fps">FPS:0</div>
 </div>
 
 <div id="window">
@@ -200,34 +210,41 @@ transform:translateY(-50%) scaleX(-1);
 
 </div>
 
+<div id="icons" style="display:none;position:fixed;bottom:20px;left:240px;">
+<div>🖥 APP</div>
+<div>⚙ SETTINGS</div>
+</div>
+
 <script>
 
-/* PUT YOUR APP URL HERE */
+/* PUT YOUR APP HERE */
 
-const APP_URL="https://eaglercraft1-8.github.io/";
+const APP_URL="YOURLINKHERE";
 
 /* BOOT */
 
 const bootText=`SOVIET TERMINAL OS
-MILITARY NODE CONNECTED
-ACCESS LEVEL: COMRADE
-LOADING SYSTEM MODULES
-INITIALIZING NETWORK`;
+NODE CONNECTED
+AUTHORIZATION: COMRADE
+INITIALIZING SYSTEM
+LOADING MODULES`;
 
 let i=0;
 
 function boot(){
 
 if(i<bootText.length){
-document.getElementById("boot").innerHTML+=bootText[i++];
+boot.innerHTML+=bootText[i++];
 setTimeout(boot,20);
 }else{
 
 setTimeout(()=>{
-document.getElementById("boot").style.display="none";
-document.getElementById("settings").style.display="block";
+
+boot.style.display="none";
+settings.style.display="block";
 document.getElementById("app").src=APP_URL;
-},800);
+
+},900);
 
 }
 
@@ -245,7 +262,6 @@ canvas.height=window.innerHeight;
 
 let fontSize=18;
 let columns=canvas.width/fontSize;
-
 let drops=[];
 
 for(let x=0;x<columns;x++) drops[x]=1;
@@ -254,14 +270,14 @@ const words=["☭","SOVIET","UNION"];
 
 let matrix=true;
 
-function draw(){
+function drawMatrix(){
 
 if(!matrix)return;
 
 ctx.fillStyle="rgba(0,0,0,0.15)";
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
-ctx.fillStyle="#FFD700";
+ctx.fillStyle="#ffd700";
 ctx.font=fontSize+"px monospace";
 
 for(let i=0;i<drops.length;i++){
@@ -279,7 +295,7 @@ drops[i]++;
 
 }
 
-setInterval(draw,50);
+setInterval(drawMatrix,50);
 
 /* FPS */
 
@@ -294,8 +310,7 @@ let now=performance.now();
 
 if(now-last>=1000){
 
-document.getElementById("fps").innerText="FPS: "+frames;
-
+fps.innerText="FPS:"+frames;
 frames=0;
 last=now;
 
@@ -312,52 +327,59 @@ fpsLoop();
 function toggleMatrix(){matrix=!matrix;}
 
 function toggleFlag(){
-
-let f=document.getElementById("flag");
-
-f.style.display=f.style.display==="none"?"block":"none";
-
+flag.style.display=
+flag.style.display==="none"?"block":"none";
 }
 
 function toggleRadar(){
-
-let r=document.getElementById("radar");
-
-r.style.display=r.style.display==="none"?"block":"none";
-
+radar.style.display=
+radar.style.display==="none"?"block":"none";
 }
 
 function toggleTanks(){
 
-let l=document.getElementById("tankLeft");
-let r=document.getElementById("tankRight");
+let state=tankLeft.style.display==="none";
 
-let state=l.style.display==="none";
-
-l.style.display=state?"block":"none";
-r.style.display=state?"block":"none";
+tankLeft.style.display=state?"block":"none";
+tankRight.style.display=state?"block":"none";
 
 }
 
 function toggleFPS(){
+fps.style.display=
+fps.style.display==="none"?"block":"none";
+}
 
-let f=document.getElementById("fps");
-
-f.style.display=f.style.display==="none"?"block":"none";
-
+function toggleIcons(){
+icons.style.display=
+icons.style.display==="none"?"block":"block";
 }
 
 function performanceMode(){
-
-fontSize=26;
-
+fontSize=28;
 }
 
-/* FULLSCREEN */
-
-function fullscreen(){
-
+function fullscreenApp(){
 document.getElementById("app").requestFullscreen();
+}
+
+/* CRT EFFECT */
+
+let crt=false;
+
+function toggleCRT(){
+
+crt=!crt;
+
+if(crt){
+
+document.body.style.filter="contrast(1.2) saturate(1.2)";
+
+}else{
+
+document.body.style.filter="none";
+
+}
 
 }
 
